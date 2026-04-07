@@ -41,43 +41,16 @@ const initialSellerState: FormState = {
   notes: '',
 }
 
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
-    />
-  )
-}
-
-function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <textarea
-      {...props}
-      className="min-h-[110px] w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
-    />
-  )
-}
-
-function Button(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      {...props}
-      className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
-    />
-  )
-}
-
-export default function PublicIntakePage() {
+export default function Page() {
   const [form, setForm] = useState<FormState>(initialBuyerState)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
   function switchType(type: IntakeType) {
+    setForm(type === 'Buyer' ? initialBuyerState : initialSellerState)
     setMessage('')
     setError('')
-    setForm(type === 'Buyer' ? initialBuyerState : initialSellerState)
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -95,87 +68,53 @@ export default function PublicIntakePage() {
     try {
       const supabase = createClient()
 
-      const payload = {
-        type: form.type,
-        company: form.company,
-        contact: form.contact,
-        email: form.email,
-        product: form.product,
-        volume: form.volume,
-        geography: form.geography,
-        terms: form.terms,
-        notes: form.notes,
-        status: 'New',
-        created_at: new Date().toISOString(),
-      }
+      const { error } = await supabase.from('intake_submissions').insert([
+        {
+          ...form,
+          status: 'New',
+          created_at: new Date().toISOString(),
+        },
+      ])
 
-      const { error: insertError } = await supabase
-        .from('intake_submissions')
-        .insert([payload])
+      if (error) throw error
 
-      if (insertError) {
-        throw new Error(insertError.message)
-      }
-
-      setMessage(
-        form.type === 'Buyer'
-          ? 'Buyer intake submitted successfully.'
-          : 'Seller intake submitted successfully.'
-      )
-
+      setMessage('Submission successful')
       setForm(form.type === 'Buyer' ? initialBuyerState : initialSellerState)
     } catch (err: any) {
-      setError(err?.message || 'Submission failed.')
+      setError(err.message || 'Submission failed')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10">
-      <div className="mx-auto max-w-3xl">
+    <main style={{ maxWidth: 600, margin: '40px auto', fontFamily: 'sans-serif' }}>
+      <h1>Fuel Intake</h1>
 
-        <div className="mb-8 rounded-3xl bg-slate-900 p-6 text-white">
-          <h1 className="text-3xl font-semibold">
-            Fuel Buyer / Seller Intake
-          </h1>
-          <p className="mt-2 text-sm text-slate-300">
-            Submit your request or offer for review.
-          </p>
-        </div>
-
-        <div className="mb-6 flex gap-2">
-          <button onClick={() => switchType('Buyer')} className="px-4 py-2 bg-slate-900 text-white rounded">
-            Buyer
-          </button>
-          <button onClick={() => switchType('Seller')} className="px-4 py-2 border rounded">
-            Seller
-          </button>
-        </div>
-
-        {message && <div className="mb-4 text-green-600">{message}</div>}
-        {error && <div className="mb-4 text-red-600">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="grid gap-4">
-
-          <Input placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
-          <Input placeholder="Contact" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
-          <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-
-          <Input placeholder="Product" value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} />
-          <Input placeholder="Volume" value={form.volume} onChange={(e) => setForm({ ...form, volume: e.target.value })} />
-          <Input placeholder="Geography" value={form.geography} onChange={(e) => setForm({ ...form, geography: e.target.value })} />
-
-          <Input placeholder="Terms" value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
-          <Textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </Button>
-
-        </form>
-
+      <div style={{ marginBottom: 20 }}>
+        <button onClick={() => switchType('Buyer')}>Buyer</button>
+        <button onClick={() => switchType('Seller')} style={{ marginLeft: 10 }}>
+          Seller
+        </button>
       </div>
+
+      {message && <p style={{ color: 'green' }}>{message}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      <form onSubmit={handleSubmit}>
+        <input placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+        <input placeholder="Contact" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
+        <input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <input placeholder="Product" value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} />
+        <input placeholder="Volume" value={form.volume} onChange={(e) => setForm({ ...form, volume: e.target.value })} />
+        <input placeholder="Geography" value={form.geography} onChange={(e) => setForm({ ...form, geography: e.target.value })} />
+        <input placeholder="Terms" value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
+        <textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Submit'}
+        </button>
+      </form>
     </main>
   )
 }
