@@ -117,13 +117,19 @@ export default function PublicIntakePage() {
         throw new Error(insertError.message)
       }
 
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      })
+     const { error: insertError } = await supabase
+  .from('intake_submissions')
+  .insert([payload])
+
+if (insertError) {
+  throw new Error(insertError.message)
+}
+
+setMessage(
+  form.type === 'Buyer'
+    ? 'Buyer intake submitted successfully.'
+    : 'Seller intake submitted successfully.'
+)
 
       setMessage(
         form.type === 'Buyer'
