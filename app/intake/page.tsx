@@ -135,6 +135,9 @@ export default function PublicIntakePage() {
     <main className="min-h-screen bg-slate-50 px-4 py-10">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 rounded-3xl bg-slate-900 p-6 text-white">
+          <div className="mb-2 text-xs uppercase tracking-widest text-slate-300">
+            OFarming Intake v2
+          </div>
           <h1 className="text-3xl font-semibold">Fuel Buyer / Seller Intake</h1>
           <p className="mt-2 text-sm text-slate-300">
             Submit your request or offer for review.
@@ -170,46 +173,14 @@ export default function PublicIntakePage() {
         {error && <div className="mb-4 text-red-600">{error}</div>}
 
         <form onSubmit={handleSubmit} className="grid gap-4">
-          <Input
-            placeholder="Company"
-            value={form.company}
-            onChange={(e) => setForm({ ...form, company: e.target.value })}
-          />
-          <Input
-            placeholder="Contact"
-            value={form.contact}
-            onChange={(e) => setForm({ ...form, contact: e.target.value })}
-          />
-          <Input
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-          <Input
-            placeholder="Product"
-            value={form.product}
-            onChange={(e) => setForm({ ...form, product: e.target.value })}
-          />
-          <Input
-            placeholder="Volume"
-            value={form.volume}
-            onChange={(e) => setForm({ ...form, volume: e.target.value })}
-          />
-          <Input
-            placeholder="Geography"
-            value={form.geography}
-            onChange={(e) => setForm({ ...form, geography: e.target.value })}
-          />
-          <Input
-            placeholder="Terms"
-            value={form.terms}
-            onChange={(e) => setForm({ ...form, terms: e.target.value })}
-          />
-          <Textarea
-            placeholder="Notes"
-            value={form.notes}
-            onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          />
+          <Input placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+          <Input placeholder="Contact" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
+          <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <Input placeholder="Product" value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} />
+          <Input placeholder="Volume" value={form.volume} onChange={(e) => setForm({ ...form, volume: e.target.value })} />
+          <Input placeholder="Geography" value={form.geography} onChange={(e) => setForm({ ...form, geography: e.target.value })} />
+          <Input placeholder="Terms" value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
+          <Textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </Button>
